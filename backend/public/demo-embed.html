@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Merchant Checkout Integration Sample | LedgerPay</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      background: #080d1a;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+      margin: 0; padding: 40px 20px;
+    }
+    .demo-container {
+      max-width: 680px; margin: 0 auto; background: #0f172a;
+      border: 1px solid #1e293b; border-radius: 12px; padding: 32px;
+    }
+    .badge {
+      display: inline-block; background: #1e293b; color: #38bdf8;
+      font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px;
+      margin-bottom: 16px;
+    }
+    .product-card {
+      background: #090d16; border: 1px solid #1f293d; border-radius: 8px;
+      padding: 20px; display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px;
+    }
+    .btn-pay {
+      background: #2563eb; color: #fff; border: none; padding: 12px 24px;
+      font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer;
+    }
+    .btn-pay:hover { background: #1d4ed8; }
+    pre {
+      background: #050811; border: 1px solid #1e293b; border-radius: 8px;
+      padding: 16px; color: #94a3b8; font-size: 12px; overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <span class="badge">SAMPLE MERCHANT APP INTEGRATION</span>
+    <h2 style="margin: 0 0 8px 0; color: #ffffff;">Acme B2B Enterprise Cloud Order</h2>
+    <p style="color: #94a3b8; font-size: 13px; margin: 0 0 24px 0;">
+      This page demonstrates how external industry apps (SaaS, ERP, e-Commerce) integrate LedgerPay in under 60 seconds with 1 drop-in script tag.
+    </p>
+
+    <div class="product-card">
+      <div>
+        <h4 style="margin:0 0 4px 0; color:#f8fafc; font-size:15px;">Enterprise Annual Cloud Subscription</h4>
+        <div style="color: #64748b; font-size: 12px;">Order ID: ORD_ACME_9941</div>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-size: 22px; font-weight: 700; color: #ffffff;">₹24,999</div>
+        <div style="font-size: 11px; color: #10b981;">Bilateral Netting Eligible</div>
+      </div>
+    </div>
+
+    <!-- Drop-in LedgerPay Checkout Trigger -->
+    <button class="btn-pay" id="btn-trigger-checkout">Pay ₹24,999 with LedgerPay</button>
+    <a href="/" style="color: #64748b; font-size: 13px; margin-left: 16px; text-decoration: none;">← Back to Dashboard</a>
+
+    <div id="checkout-result" style="display:none; margin-top: 20px; padding: 14px; background: #064e3b; border: 1px solid #059669; border-radius: 8px; color: #34d399; font-size: 13px;">
+    </div>
+
+    <h4 style="margin: 32px 0 10px 0; font-size: 13px; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.05em;">Code Needed for this Integration:</h4>
+    <pre><code>&lt;!-- 1. Include the LedgerPay SDK --&gt;
+&lt;script src="http://localhost:4000/sdk/ledgerpay.js"&gt;&lt;/script&gt;
+
+&lt;!-- 2. Trigger Checkout with Custom Options --&gt;
+&lt;script&gt;
+  const lp = new LedgerPay({ publishableKey: 'pk_live_acme_corp' });
+  
+  document.getElementById('pay-btn').onclick = () => {
+    lp.openCheckout({
+      amount: 24999,
+      currency: 'INR',
+      orderId: 'ORD_ACME_9941',
+      customer: { email: 'billing@enterprise.com', name: 'Rajesh Nair' },
+      onSuccess: (tx) => alert('Payment completed: ' + tx.transactionId)
+    });
+  };
+&lt;/script&gt;</code></pre>
+  </div>
+
+  <!-- Include Drop-in SDK -->
+  <script src="/sdk/ledgerpay.js"></script>
+  <script>
+    const lp = new LedgerPay({
+      publishableKey: 'pk_live_demo_merchant',
+      merchantName: 'Acme Cloud Services'
+    });
+
+    document.getElementById('btn-trigger-checkout').addEventListener('click', () => {
+      lp.openCheckout({
+        amount: 24999,
+        currency: 'INR',
+        orderId: 'ORD_ACME_9941',
+        customer: {
+          email: 'rajesh.nair@enterprise.com',
+          name: 'Rajesh Nair',
+          upiId: 'rajesh@okaxis'
+        },
+        onSuccess: (res) => {
+          const resEl = document.getElementById('checkout-result');
+          resEl.style.display = 'block';
+          resEl.innerHTML = `<strong>Payment Authorised & Reconciled!</strong><br>Transaction ID: <code>${res.transactionId}</code><br>Amount: ₹24,999 (INR) | Ledger Balance Hash Verified.`;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

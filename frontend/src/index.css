@@ -1,0 +1,249 @@
+/* =========================================================================
+   LEDGERPAY AI — MODERN INSTRUMENT-PANEL DESIGN SYSTEM
+   Palette: #F7F7F5 Warm-White, #14151A Near-Black Ink, #1E3FE0 Cobalt
+   State: #0E7C4A Green, #C4291D Red
+   Philosophy: "The number is the interface; chrome stays quiet."
+   ========================================================================= */
+
+:root {
+  /* Colors */
+  --base: #F7F7F5;                /* Warm-white base */
+  --surface: #FFFFFF;             /* Pure white panels */
+  --surface-subtle: #F2F2EE;      /* Quiet secondary surface */
+  --ink: #14151A;                 /* Near-black ink text */
+  --ink-secondary: #565860;       /* Secondary neutral text */
+  --ink-muted: #878994;           /* Quiet caption / muted */
+  
+  /* Single confident accent */
+  --cobalt: #1E3FE0;              /* The one thing that matters */
+  --cobalt-hover: #1532C2;
+  --cobalt-subtle: rgba(30, 63, 224, 0.08);
+
+  /* State Only */
+  --green: #0E7C4A;               /* Settled, healthy, balanced */
+  --green-bg: rgba(14, 124, 74, 0.08);
+  --red: #C4291D;                 /* Blocked, error, anomaly */
+  --red-bg: rgba(196, 41, 29, 0.08);
+  --amber: #B86200;               /* Step-up, warning */
+  --amber-bg: rgba(184, 98, 0, 0.08);
+
+  /* Hairlines (no shadows, pure 1px rules) */
+  --hairline: #E6E6E2;            /* 1px rule separator */
+  --hairline-strong: #D1D1CB;     /* Focused hairline */
+
+  /* Typography: One Grotesk Family */
+  --font-grotesk: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--base);
+  color: var(--ink);
+  font-family: var(--font-grotesk);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.5;
+  overflow-x: hidden;
+  font-feature-settings: "tnum" 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Big Hero Numerals Doing the Talking */
+.hero-num {
+  font-size: 3rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  font-feature-settings: "tnum" 1;
+}
+
+.hero-num-lg {
+  font-size: 3.75rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+}
+
+.hero-num-sm {
+  font-size: 1.75rem;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.label-quiet {
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum" 1;
+}
+
+/* Hairline Grid Sections (No Cards, No Heavy Shadows) */
+.instrument-section {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  padding: 28px 32px;
+}
+
+.hairline-grid {
+  display: grid;
+  border-top: 1px solid var(--hairline);
+  border-left: 1px solid var(--hairline);
+}
+
+.hairline-cell {
+  border-right: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  padding: 24px 28px;
+  background: var(--surface);
+}
+
+/* The One Confident Cobalt Accent Button */
+.btn-cobalt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--cobalt);
+  color: #FFFFFF;
+  font-family: var(--font-grotesk);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 2px;
+  border: 1px solid var(--cobalt);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.btn-cobalt:hover {
+  background: var(--cobalt-hover);
+}
+
+.btn-quiet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-grotesk);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 2px;
+  border: 1px solid var(--hairline);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-quiet:hover {
+  background: var(--surface-subtle);
+  border-color: var(--hairline-strong);
+}
+
+/* Minimal State Pills */
+.pill-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pill-green {
+  color: var(--green);
+  background: var(--green-bg);
+}
+
+.pill-red {
+  color: var(--red);
+  background: var(--red-bg);
+}
+
+.pill-amber {
+  color: var(--amber);
+  background: var(--amber-bg);
+}
+
+.pill-cobalt {
+  color: var(--cobalt);
+  background: var(--cobalt-subtle);
+}
+
+/* Clean Instrument Table */
+.instrument-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.825rem;
+  text-align: left;
+}
+
+.instrument-table th {
+  padding: 12px 16px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface);
+}
+
+.instrument-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--ink);
+  vertical-align: middle;
+}
+
+.instrument-table tr:hover td {
+  background: var(--surface-subtle);
+}
+
+/* Clean Instrument Form Inputs */
+input, select, textarea {
+  font-family: var(--font-grotesk);
+  font-size: 0.85rem;
+  background-color: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.15s ease;
+  font-feature-settings: "tnum" 1;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--cobalt);
+}
+
+/* Minimal Radar Container */
+.radar-container {
+  background: #0E0F14;
+  border: 1px solid #1E2029;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}

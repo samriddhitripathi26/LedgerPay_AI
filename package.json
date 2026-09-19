@@ -1,0 +1,12 @@
+{
+  "name": "ledgerpay-ai-workspace",
+  "version": "1.0.0",
+  "description": "LedgerPay AI - Intelligent Payment Orchestration, GNN Fraud Detection, Smart RL Routing, and Multi-Currency Treasury",
+  "scripts": {
+    "start:backend": "cd backend && npx tsx src/server.ts",
+    "start:ai": "cd ai-service && python app.py",
+    "start:frontend": "cd frontend && npx vite --port 3000 --host 127.0.0.1",
+    "test:concurrency": "node -e \"fetch('http://localhost:4000/api/v1/payments/stress-test', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({amount:500})}).then(r=>r.json()).then(console.log)\"",
+    "test:ledger-audit": "node -e \"fetch('http://localhost:4000/api/v1/ledger/verify').then(r=>r.json()).then(console.log)\""
+  }
+}

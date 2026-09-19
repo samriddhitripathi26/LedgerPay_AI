@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LedgerPay AI – Payment Orchestration & Multi-Currency Treasury</title>
+  <meta name="description" content="Minimalist, enterprise-grade payment orchestration gateway with Indian Rupee (INR) settlement, multi-currency netting, double-entry ledger, and HMAC webhooks.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  <script src="/sdk/ledgerpay.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+
+  <!-- TOP APP NAVBAR -->
+  <header class="navbar">
+    <div class="brand-section">
+      <span class="brand-title">LedgerPay AI</span>
+      <span class="brand-pill">Enterprise</span>
+    </div>
+
+    <div class="nav-actions">
+      <div class="env-switch">
+        <button class="env-btn active" id="btn-env-live">LIVE</button>
+        <button class="env-btn" id="btn-env-test">TEST</button>
+      </div>
+      <div class="live-indicator">
+        <span class="live-dot"></span>
+        <span id="gateway-status-text">Gateway Online (4000)</span>
+      </div>
+      <a href="/demo-embed.html" class="btn btn-secondary btn-sm" target="_blank">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Sample Merchant Embed
+      </a>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="tab-bar">
+    <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Overview
+    </button>
+    <button class="tab-btn" data-tab="studio" onclick="switchTab('studio')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Payment Studio
+    </button>
+    <button class="tab-btn" data-tab="routing" onclick="switchTab('routing')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+      Smart Routing
+    </button>
+    <button class="tab-btn" data-tab="fraud" onclick="switchTab('fraud')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Fraud Intelligence
+    </button>
+    <button class="tab-btn" data-tab="treasury" onclick="switchTab('treasury')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><line x1="12" y1="6" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="18"/></svg>
+      Treasury & Netting
+    </button>
+    <button class="tab-btn" data-tab="recon" onclick="switchTab('recon')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Reconciliation
+    </button>
+    <button class="tab-btn" data-tab="ledger" onclick="switchTab('ledger')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Double-Entry Ledger
+    </button>
+    <button class="tab-btn" data-tab="developer" onclick="switchTab('developer')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      Developer Suite
+    </button>
+  </nav>
+
+  <!-- MAIN CONTAINER -->
+  <main class="main-content">
+
+    <!-- ==================== TAB 1: OVERVIEW ==================== -->
+    <section id="tab-overview" class="tab-pane active">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Financial Performance & Live Metrics</h1>
+          <div class="section-desc">Consolidated Indian Rupee (₹) settlement volume, netting savings, and live transaction stream.</div>
+        </div>
+        <div>
+          <button class="btn btn-secondary btn-sm" id="btn-refresh-overview">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- METRIC CARDS -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Settled Volume (INR) <span class="badge badge-success">Live</span></div>
+          <div class="kpi-value" id="kpi-volume-inr">₹75,17,145</div>
+          <div class="kpi-sub">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+            <span>+14.8% vs last settlement cycle</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">Netting Fees Saved <span class="badge badge-info">Treasury</span></div>
+          <div class="kpi-value" id="kpi-netting-saved">₹84,200</div>
+          <div class="kpi-sub" style="color: #38bdf8;">
+            <span>Zero FX spread via Bilateral Netting</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">Saga Authorization Rate</div>
+          <div class="kpi-value" id="kpi-success-rate">99.4%</div>
+          <div class="kpi-sub">
+            <span>Dynamic smart routing active</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">Cryptographic Journal Entries</div>
+          <div class="kpi-value" id="kpi-ledger-entries">142</div>
+          <div class="kpi-sub">
+            <span class="badge badge-success" style="font-size:10px;">SHA-256 Verified Balanced</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE TRANSACTION STREAM -->
+      <div class="card-panel">
+        <div class="card-header">
+          <span class="card-title">Recent Settled Transactions</span>
+          <span class="badge badge-neutral" id="tx-count-badge">8 transactions</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Transaction ID</th>
+                <th>Payment Method</th>
+                <th>Amount (INR)</th>
+                <th>Status</th>
+                <th>Provider Fee</th>
+                <th>Latency</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody id="overview-tx-table-body">
+              <tr><td colspan="7" style="text-align:center; color:#64748b; padding: 24px;">Loading live transactions...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: PAYMENT STUDIO ==================== -->
+    <section id="tab-studio" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Payment Studio & Concurrency Simulator</h2>
+          <div class="section-desc">Simulate single payments, UPI/QR checkout, or fire 10-thread parallel race conditions to test zero-double-charge idempotency.</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- SINGLE PAYMENT SIMULATOR -->
+        <div class="card-panel">
+          <div class="card-header">
+            <span class="card-title">Single Payment Checkout (INR)</span>
+            <span class="badge badge-info">Zero Double-Charge</span>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Payment Presets</label>
+              <div style="display:flex; gap:8px; margin-bottom:12px;">
+                <button class="btn btn-secondary btn-sm preset-btn" data-amt="500">₹500</button>
+                <button class="btn btn-secondary btn-sm preset-btn" data-amt="2000">₹2,000</button>
+                <button class="btn btn-secondary btn-sm preset-btn" data-amt="15000">₹15,000</button>
+                <button class="btn btn-secondary btn-sm preset-btn" data-amt="49999">₹49,999</button>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Amount (INR ₹)</label>
+                <input type="number" class="form-input" id="studio-amt" value="2000">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Currency</label>
+                <select class="form-select" id="studio-curr">
+                  <option value="INR" selected>INR (₹ Indian Rupee)</option>
+                  <option value="USD">USD ($ US Dollar)</option>
+                  <option value="EUR">EUR (€ Euro)</option>
+                  <option value="GBP">GBP (£ British Pound)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Payment Method</label>
+              <select class="form-select" id="studio-method">
+                <option value="upi" selected>UPI (Unified Payments Interface / QR)</option>
+                <option value="card">Card (RuPay / Visa / Mastercard)</option>
+                <option value="netbanking">NetBanking (Indian Commercial Banks)</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="studio-upi-row">
+              <label class="form-label">Virtual Payment Address (UPI ID)</label>
+              <input type="text" class="form-input" id="studio-upi" value="customer@okaxis">
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:20px;">
+              <button class="btn btn-primary" id="btn-process-single-pay" style="flex:1;">
+                Authorize Payment
+              </button>
+              <button class="btn btn-secondary" id="btn-open-modal-sdk">
+                Test Drop-in Modal SDK
+              </button>
+            </div>
+
+            <div id="single-pay-result" style="margin-top:16px; display:none;" class="code-box"></div>
+          </div>
+        </div>
+
+        <!-- 10-THREAD CONCURRENCY STRESS-TEST -->
+        <div class="card-panel">
+          <div class="card-header">
+            <span class="card-title">10-Thread Concurrency Stress Test</span>
+            <span class="badge badge-warning">Critical FinTech Proof</span>
+          </div>
+          <div class="card-body">
+            <p style="color:var(--text-secondary); font-size:13px; margin-bottom:16px;">
+              Fires <strong>10 simultaneous requests</strong> with the <strong>exact same idempotency key</strong> within 2 milliseconds. Validates that the atomic locking engine prevents duplicate charges and creates exactly 1 balanced ledger booking.
+            </p>
+
+            <div style="background:#090d16; padding:14px; border-radius:8px; border:1px solid var(--border-subtle); margin-bottom:16px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                <span style="color:var(--text-muted); font-size:12px;">Test Amount:</span>
+                <strong style="color:#ffffff;">₹15,000 INR</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                <span style="color:var(--text-muted); font-size:12px;">Simultaneous Threads:</span>
+                <strong style="color:#ffffff;">10 parallel calls</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--text-muted); font-size:12px;">Expected Result:</span>
+                <strong style="color:#10b981;">1 Succeeded, 9 Replay/Conflict (0 Double-Charge)</strong>
+              </div>
+            </div>
+
+            <button class="btn btn-success" id="btn-run-stress-test" style="width:100%;">
+              Execute 10-Thread Race Condition Test
+            </button>
+
+            <div id="stress-test-result" style="margin-top:16px; display:none;" class="code-box"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: SMART ROUTING ==================== -->
+    <section id="tab-routing" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Payment Service Provider (PSP) Routing Matrix</h2>
+          <div class="section-desc">Real-time health, fee optimization, and automated cascading fallback across Indian & Global payment gateways.</div>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Gateway Provider</th>
+                <th>Primary Rail</th>
+                <th>Health Status</th>
+                <th>Base MDR Fee</th>
+                <th>Latency (p95)</th>
+                <th>Cascading Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Razorpay Direct</strong></td>
+                <td>UPI 2.0 / RuPay / NetBanking</td>
+                <td><span class="badge badge-success">99.98% HEALTHY</span></td>
+                <td>₹0 for UPI / 1.75% Cards</td>
+                <td>142 ms</td>
+                <td><span class="badge badge-info">Priority 1 (Primary IN)</span></td>
+              </tr>
+              <tr>
+                <td><strong>HDFC SmartHub</strong></td>
+                <td>Direct Bank NetBanking & Cards</td>
+                <td><span class="badge badge-success">99.85% HEALTHY</span></td>
+                <td>1.65% Commercial</td>
+                <td>185 ms</td>
+                <td><span class="badge badge-info">Priority 2 (Failover)</span></td>
+              </tr>
+              <tr>
+                <td><strong>Cashfree Payments</strong></td>
+                <td>Instant UPI Autopay / Cards</td>
+                <td><span class="badge badge-success">99.92% HEALTHY</span></td>
+                <td>1.80%</td>
+                <td>160 ms</td>
+                <td><span class="badge badge-neutral">Priority 3</span></td>
+              </tr>
+              <tr>
+                <td><strong>Stripe India</strong></td>
+                <td>International Cards (USD/EUR/GBP)</td>
+                <td><span class="badge badge-success">99.99% HEALTHY</span></td>
+                <td>2.00% Domestic / 3.00% Cross-Border</td>
+                <td>210 ms</td>
+                <td><span class="badge badge-neutral">Priority 4 (Cross-Border)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: FRAUD INTELLIGENCE ==================== -->
+    <section id="tab-fraud" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Machine Learning Risk & Fraud Engine</h2>
+          <div class="section-desc">Autonomous velocity checks, device fingerprinting, and risk score thresholds to protect merchant ledger balances.</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card-panel">
+          <div class="card-header"><span class="card-title">Risk Scoring Matrix</span></div>
+          <div class="card-body">
+            <div style="margin-bottom:14px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:12px;">
+                <span>Low Risk (Score 0 – 35)</span>
+                <span class="badge badge-success">Auto-Approve</span>
+              </div>
+              <div style="background:#1e293b; height:6px; border-radius:3px;"><div style="background:#10b981; width:75%; height:100%;"></div></div>
+            </div>
+
+            <div style="margin-bottom:14px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:12px;">
+                <span>Medium Risk (Score 36 – 70)</span>
+                <span class="badge badge-warning">Enforce 3D Secure / OTP</span>
+              </div>
+              <div style="background:#1e293b; height:6px; border-radius:3px;"><div style="background:#f59e0b; width:20%; height:100%;"></div></div>
+            </div>
+
+            <div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:12px;">
+                <span>High Risk (Score 71 – 100)</span>
+                <span class="badge badge-danger">Instant Block (0 MDR Loss)</span>
+              </div>
+              <div style="background:#1e293b; height:6px; border-radius:3px;"><div style="background:#ef4444; width:5%; height:100%;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-panel">
+          <div class="card-header"><span class="card-title">Automated Rule Engine</span></div>
+          <div class="card-body" style="font-size:13px; color:var(--text-secondary); line-height:1.7;">
+            <div style="border-bottom:1px solid var(--border-subtle); padding-bottom:8px; margin-bottom:8px;">
+              <strong style="color:#ffffff;">Velocity Trigger:</strong> Max 3 transactions per card/IP per 60 seconds.
+            </div>
+            <div style="border-bottom:1px solid var(--border-subtle); padding-bottom:8px; margin-bottom:8px;">
+              <strong style="color:#ffffff;">UPI VPA Verification:</strong> Real-time NPCI format and handle validation.
+            </div>
+            <div>
+              <strong style="color:#ffffff;">Cross-Border Geo-Block:</strong> Auto-flag transactions originating from high-risk Tor exit nodes.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: TREASURY & NETTING ==================== -->
+    <section id="tab-treasury" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Multi-Currency Treasury & Bilateral Netting</h2>
+          <div class="section-desc">Manage INR settlement vaults, convert FX balances with 0-spread institutional rates, and execute netting batches.</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- BALANCES -->
+        <div class="card-panel">
+          <div class="card-header"><span class="card-title">Merchant Vault Balances</span></div>
+          <div class="card-body">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border-subtle);">
+              <div>
+                <strong style="font-size:16px; color:#ffffff;">INR (₹) Vault</strong>
+                <div style="font-size:11px; color:#10b981;">Primary Settlement Currency</div>
+              </div>
+              <span style="font-size:22px; font-weight:700; color:#ffffff;" id="vault-inr">₹48,25,000</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border-subtle);">
+              <div>
+                <strong style="font-size:15px; color:#ffffff;">USD ($) Reserve</strong>
+                <div style="font-size:11px; color:#64748b;">Cross-Border Inward</div>
+              </div>
+              <span style="font-size:18px; font-weight:600; color:#cbd5e1;" id="vault-usd">$32,500</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0;">
+              <div>
+                <strong style="font-size:15px; color:#ffffff;">EUR (€) Reserve</strong>
+                <div style="font-size:11px; color:#64748b;">European Inward</div>
+              </div>
+              <span style="font-size:18px; font-weight:600; color:#cbd5e1;" id="vault-eur">€14,800</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BILATERAL NETTING ENGINE -->
+        <div class="card-panel">
+          <div class="card-header">
+            <span class="card-title">Bilateral Netting Engine</span>
+            <span class="badge badge-success">Active</span>
+          </div>
+          <div class="card-body">
+            <p style="color:var(--text-secondary); font-size:13px; margin-bottom:16px;">
+              Bilateral netting collapses thousands of gross cross-border supplier payables and merchant receivables into single net settlements, saving <strong>up to 85% in interbank transaction fees</strong>.
+            </p>
+            <div style="background:#090d16; padding:14px; border-radius:8px; border:1px solid var(--border-subtle); margin-bottom:16px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px;">
+                <span>Total Netting Batches:</span>
+                <strong style="color:#ffffff;">4 Batches Completed</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:12px;">
+                <span>Total Fees Saved:</span>
+                <strong style="color:#10b981;">₹84,200 (INR)</strong>
+              </div>
+            </div>
+            <button class="btn btn-primary" id="btn-exec-netting" style="width:100%;">Execute Live Netting Run</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 6: RECONCILIATION ==================== -->
+    <section id="tab-recon" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Automated Bank Settlement Reconciliation</h2>
+          <div class="section-desc">Reconcile internal immutable ledger records against external bank statements and PSP settlement files.</div>
+        </div>
+        <div>
+          <button class="btn btn-primary btn-sm" id="btn-run-recon">Run Reconciler Now</button>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Recon Run ID</th>
+                <th>Statement Source</th>
+                <th>Total Records</th>
+                <th>Exact Matches</th>
+                <th>Discrepancies</th>
+                <th>Resolution Status</th>
+              </tr>
+            </thead>
+            <tbody id="recon-table-body">
+              <tr>
+                <td class="mono">REC_20260904_01</td>
+                <td>HDFC Bank Nodal Statement</td>
+                <td>124</td>
+                <td><span class="badge badge-success">124 (100%)</span></td>
+                <td>0</td>
+                <td><span class="badge badge-success">Settled & Locked</span></td>
+              </tr>
+              <tr>
+                <td class="mono">REC_20260904_02</td>
+                <td>Razorpay Settlement Batch #892</td>
+                <td>88</td>
+                <td><span class="badge badge-success">88 (100%)</span></td>
+                <td>0</td>
+                <td><span class="badge badge-success">Settled & Locked</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 7: DOUBLE-ENTRY LEDGER ==================== -->
+    <section id="tab-ledger" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Cryptographic Double-Entry Journal</h2>
+          <div class="section-desc">Immutable, SHA-256 chained transaction journal. Debits equal credits to the exact integer paisa.</div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-secondary btn-sm" id="btn-verify-ledger">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Verify Integrity
+          </button>
+          <a href="/api/v1/ledger/journal/export/csv" class="btn btn-primary btn-sm" target="_blank">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export Journal CSV
+          </a>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="card-header">
+          <span class="card-title">Audit Ledger Entries</span>
+          <span class="badge badge-success" id="ledger-audit-status">Cryptographically Verified</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Entry ID</th>
+                <th>Transaction Ref</th>
+                <th>Account Debit</th>
+                <th>Account Credit</th>
+                <th>Amount</th>
+                <th>Currency</th>
+                <th>Hash Digest</th>
+              </tr>
+            </thead>
+            <tbody id="ledger-table-body">
+              <tr><td colspan="7" style="text-align:center; color:#64748b; padding:24px;">Loading ledger entries...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 8: DEVELOPER SUITE ==================== -->
+    <section id="tab-developer" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Developer & Integration Suite</h2>
+          <div class="section-desc">Integrate LedgerPay into any industry app, ERP, or web platform with drop-in SDKs, API keys, and HMAC webhooks.</div>
+        </div>
+      </div>
+
+      <!-- API KEYS VAULT -->
+      <div class="card-panel">
+        <div class="card-header">
+          <span class="card-title">Merchant API Credentials</span>
+          <button class="btn btn-secondary btn-sm" id="btn-rotate-keys">Rotate Secret Key</button>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">Publishable Key (Client-side / Frontend Embed)</label>
+            <div style="display:flex; gap:8px;">
+              <input type="text" class="form-input mono" id="dev-pk" value="pk_live_ledgerpay_9a7b2c" readonly>
+              <button class="btn btn-secondary btn-sm" onclick="copyText(document.getElementById('dev-pk').value, 'Publishable Key')">Copy</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Secret Key (Server-to-Server / Backend API)</label>
+            <div style="display:flex; gap:8px;">
+              <input type="password" class="form-input mono" id="dev-sk" value="sk_live_ledgerpay_secret_5f81a3e9c201" readonly>
+              <button class="btn btn-secondary btn-sm" id="btn-toggle-sk">Reveal</button>
+              <button class="btn btn-secondary btn-sm" onclick="copyText(document.getElementById('dev-sk').value, 'Secret Key')">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEBHOOK SIMULATOR -->
+      <div class="grid-2">
+        <div class="card-panel">
+          <div class="card-header">
+            <span class="card-title">HMAC SHA-256 Webhook Simulator</span>
+            <span class="badge badge-info">Stripe/Razorpay Standard</span>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Webhook Destination URL</label>
+              <input type="url" class="form-input mono" id="dev-webhook-url" value="https://api.merchant.com/v1/ledgerpay/webhook">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Event Type</label>
+              <select class="form-select" id="dev-event-type">
+                <option value="payment.captured">payment.captured (INR Succeeded)</option>
+                <option value="payment.failed">payment.failed (Risk/Card Declined)</option>
+                <option value="netting.settled">netting.settled (Bilateral Batch Executed)</option>
+              </select>
+            </div>
+
+            <button class="btn btn-primary" id="btn-send-webhook-test" style="width:100%;">
+              Dispatch Test Webhook with HMAC Signature
+            </button>
+          </div>
+        </div>
+
+        <div class="card-panel">
+          <div class="card-header">
+            <span class="card-title">Recent Webhook Deliveries</span>
+            <span class="badge badge-neutral" id="webhook-count-badge">Live Logs</span>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div id="webhook-logs-container" style="max-height:220px; overflow-y:auto; font-size:12px;">
+              <div style="padding:16px; color:#64748b; text-align:center;">No recent webhook dispatches. Click dispatch to test.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SDK CODE EXAMPLES -->
+      <div class="card-panel">
+        <div class="card-header"><span class="card-title">Drop-in Integration Code (Ready to Copy)</span></div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">1. Drop-in Frontend JavaScript (Any HTML/Web App)</label>
+            <div class="code-box">
+              <button class="copy-btn" onclick="copyText(this.nextElementSibling.textContent, 'Frontend SDK Code')">Copy</button>
+              <code>&lt;script src="http://localhost:4000/sdk/ledgerpay.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  const lp = new LedgerPay({ publishableKey: 'pk_live_ledgerpay_9a7b2c' });
+  lp.openCheckout({
+    amount: 1500, // Amount in INR (₹1,500)
+    currency: 'INR',
+    customer: { email: 'customer@acme.com', upiId: 'user@okaxis' },
+    onSuccess: (tx) => console.log('Payment Authorised:', tx.transactionId)
+  });
+&lt;/script&gt;</code>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">2. Server-Side Node.js / Express Authorization</label>
+            <div class="code-box">
+              <button class="copy-btn" onclick="copyText(this.nextElementSibling.textContent, 'Node.js Code')">Copy</button>
+              <code>const response = await fetch('http://localhost:4000/api/v1/payments/charge', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Idempotency-Key': 'idemp_' + Date.now(),
+    'Authorization': 'Bearer sk_live_ledgerpay_secret_...'
+  },
+  body: JSON.stringify({
+    amount: 2500,
+    currency: 'INR',
+    paymentMethod: 'upi',
+    upiId: 'user@okaxis',
+    merchantId: 'mch_acme_corp'
+  })
+});
+const charge = await response.json();</code>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">3. cURL Command</label>
+            <div class="code-box">
+              <button class="copy-btn" onclick="copyText(this.nextElementSibling.textContent, 'cURL Command')">Copy</button>
+              <code>curl -X POST http://localhost:4000/api/v1/payments/charge \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: idemp_manual_101" \
+  -d '{"amount": 5000, "currency": "INR", "paymentMethod": "upi", "upiId": "test@okaxis"}'</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- APP FOOTER -->
+  <footer class="app-footer">
+    <div>
+      <strong>LedgerPay AI</strong> • Minimal Industry-Ready Payment Orchestration & Multi-Currency Treasury
+    </div>
+    <div style="display:flex; gap:16px;">
+      <span>Base Currency: <strong>INR (₹)</strong></span>
+      <span>Double-Entry: <strong>ISO 20022</strong></span>
+      <span>Port: <strong>4000</strong></span>
+    </div>
+  </footer>
+</body>
+</html>
